@@ -1,0 +1,12 @@
+^[^/]+\.pl$
+.+~$
+^test
+^_build
+^Build$
+\.bak$
+^MANIFEST\.skip
+^MYMETA\.yml$
+^MYMETA\.json$
+^\.git/
+^blib/
+

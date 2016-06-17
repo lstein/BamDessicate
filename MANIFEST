@@ -1,0 +1,16 @@
+.gitignore
+bin/bam2fastq.pl
+bin/dessicate.pl
+bin/hydrate.pl
+Build.PL
+lib/Bio/DB/DamFile.pm
+lib/Bio/DB/DamFile/Common.pm
+lib/Bio/DB/DamFile/Creator.pm
+lib/Bio/DB/DamFile/Iterator.pm
+LICENSE
+MANIFEST			This list of files
+MANIFEST.SKIP
+META.json
+META.yml
+README.md
+t/01.damfile.t
