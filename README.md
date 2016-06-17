@@ -38,6 +38,7 @@ storing multiple remapped BAM files.
 
 Here is an ASCII text representation of the DAM file:
 
+```
  --------------------------------------------------------------------------------------
  |                       HEADER  (512 bytes)                                          |
  |DAM1                -- magic number,                                      4 bytes   |
@@ -69,3 +70,25 @@ Here is an ASCII text representation of the DAM file:
  | ReadName is a null terminated string. Offset is the position of the compressed block
  | that begins with the ReadName SAM line. Offset is 8 bytes in length.
  --------------------------------------------------------------------------------------
+```
+
+# Installation
+
+After cloning or downloading the repository, please run the following
+commands from the shell:
+
+```shell
+> perl Build.PL
+> ./Build test
+> sudo ./Build install
+```
+
+# Perl Library Documentation
+
+The Perl documentation is embedded in the file
+lib/Bio/DB/DamFile.pm. It will also be available as a manual page once
+you install the module on your system. Use:
+
+```shell
+perldoc Bio::DB::DamFile
+```
