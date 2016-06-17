@@ -3,12 +3,14 @@ Reduce the size of BAM files by stripping out read and quality information, whil
 
 # Command-line usage
 
+```shell 
  # compress a BAM file by stripping read and quality information, creating a .dam file
  dessicate.pl big_file.bam small_file.dam
 
  # rehydrate the .dam file by adding back the read and quality info
  # (read information can come from a SAM, BAM or FASTQ file)
  hydrate.pl small_file.dam reads.fastq.gz out.bam
+```
 
 # Description
 This Perl library was created to solve the issue of maintaining
