@@ -92,3 +92,12 @@ you install the module on your system. Use:
 ```shell
 perldoc Bio::DB::DamFile
 ```
+
+# Author
+
+Lincoln D. Stein <lincoln.stein@gmail.com>
+
+# Copyright and License Information
+
+Copyright 2016 Ontario Institute for Cancer Research. This library is
+licensed using the Perl Artistic License version 2.0.
