@@ -22,5 +22,19 @@ my $build = Module::Build->new (
 	'IO::Uncompress::Base'             => '2.060',
 	'IO::Compress::Base::Common'       => '2.060',
     });
+
+check_executable('samtools') 
+    || die "You must have the samtools executable (http://www.htslib.org/) on your path in order to use this library";
+
+check_executable('sort')
+    || die "You must have the UNIX sort executable on your path in order to use this library";
+
 $build->create_build_script;
-1;
+
+exit 0;
+
+sub check_executable {
+    my $bin    = shift;
+    my $output = `which $bin`;
+    return $output =~ /\S/;
+}

@@ -1,8 +1,10 @@
 .gitignore
 bin/bam2fastq.pl
+bin/dam_view.pl
 bin/dessicate.pl
 bin/hydrate.pl
 Build.PL
+Changes
 lib/Bio/DB/DamFile.pm
 lib/Bio/DB/DamFile/Common.pm
 lib/Bio/DB/DamFile/Creator.pm
