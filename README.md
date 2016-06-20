@@ -48,11 +48,12 @@ Here is an ASCII text representation of the DAM file:
 ```
  --------------------------------------------------------------------------------------
  |                       HEADER  (512 bytes)                                          |
- |DAM1                -- magic number,                                      4 bytes   |
+ |DAM1                -- magic number,                                       4 bytes  |
+ |DAM_version         -- file format version number * 100                    4 bytes  |
  |SAM_header_offset   -- byte position of the start of the SAM header,      16 bytes  |
  |block_offset        -- byte position of the first compressed block,       16 bytes  |
  |index_offset        -- byte position of the start of the read name index, 16 bytes  |
- |path_name           -- full path to the source BAM/SAM file                variable |
+ |path_name           -- full path to the source BAM/SAM file               variable  |
  |                        (this is a zero-terminated string)                          |
  --------------------------------------------------------------------------------------
  |                      SAM HEADER (variable length)                                  |
