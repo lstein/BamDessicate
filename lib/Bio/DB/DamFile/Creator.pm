@@ -62,6 +62,7 @@ sub create_damfile {
 
     my $abspath  = abs_path($sourcefile);
     my $limit    = HEADER - ( 4   # magic number
+			     +4   # version number
 			     +8   # offset to beginning of BAM/SAM header data
 			     +8   # offset to beginning of gzip block data
 			     +8   # offset to beginning of read name index
@@ -74,7 +75,7 @@ sub create_damfile {
     open my $outfh,'>',$outfile or die "$outfile: $!";
 
     # magic number, offsets to beginning of BAM header data, gzip data, index
-    print $outfh pack(HEADER_STRUCT,MAGIC,HEADER,0,0,$abspath); 
+    print $outfh pack(HEADER_STRUCT,MAGIC,FORMAT_VERSION*100,HEADER,0,0,$abspath); 
 
     seek($outfh,HEADER,0);                        # start writing at beginning of BAM header area
     return $outfh;
@@ -124,7 +125,7 @@ sub transcribe_blocks {
 	next if /^@/; # ignore headers
 
 	my @fields = split "\t";
-	my $line   = join("\t",@fields[0,1,2,3,4,5,6,7,8,'*','*',11..$#fields]); # everything but the read and quals
+	my $line   = join("\t",@fields[0,1,2,3,4,5,6,7,8,11..$#fields]); # everything but the read and quals
 
 	# the key keeps track of the first ID in the block
 	# we constrain IDs to always fall in the same block
@@ -162,7 +163,7 @@ sub write_dam_index {
 sub update_dam_header {
     my $self = shift;
     my ($outfh,$header_start,$block_start,$index_start) = @_;
-    seek($outfh,4,0);
+    seek($outfh,8,0);
     print $outfh pack('QQQ',$header_start,$block_start,$index_start) 
 	or die "write of output file failed: $!";
     close $outfh or die "close of output file failed: $!";

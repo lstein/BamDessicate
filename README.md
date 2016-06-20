@@ -5,11 +5,18 @@ Reduce the size of BAM files by stripping out read and quality information, whil
 
 ```shell 
  # compress a BAM file by stripping read and quality information, creating a .dam file
- dessicate.pl big_file.bam small_file.dam
+ $ dessicate.pl big_file.bam small_file.dam
 
  # rehydrate the .dam file by adding back the read and quality info
  # (read information can come from a SAM, BAM or FASTQ file)
- hydrate.pl small_file.dam reads.fastq.gz out.bam
+ $ hydrate.pl small_file.dam reads.fastq.gz out.bam
+
+ # extracts SAM lines from in.dam and displays to stdout
+ $ dam_view.pl  in.dam
+
+ # same, but just the alphabetic range between read0010 read0020
+ $ dam_view.pl  in.dam read0010 read0020
+
 ```
 
 # Description

@@ -1,6 +1,6 @@
 package Bio::DB::DamFile;
 
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 =head1 NAME
 
@@ -56,6 +56,13 @@ $path      = $dam->source_path;   # Path to the original BAM file that was used 
 $offset    = $dam->header_offset; # Offset (in bytes) to where the SAM header starts
 $offset    = $dam->block_offset;  # Offset (in bytes) to where the bzip2-compressed alignmenet data starts
 $offset    = $dam->index_offset;  # Offset (in bytes) to where the name-sorted index of reads begins
+
+# COMMAND LINE TOOLS:
+$ dessicate.pl in.bam out.dam           # dessicates in.bam, stores it in out.dam
+$ hydrate.pl   in.dam in.bam   out.bam  # rehydrates in.dam from read data stored in in.bam and stores in out.ba
+$ hydrate.pl   in.dam in.fastq out.bam  # same idea, but takes read data from in.fastq (works on fastq.gz too)
+$ dam_view.pl  in.dam                   # extracts SAM lines from in.dam and displays to stdout
+$ dam_view.pl  in.dam read0010 read0020 # displays SAM lines from start read to end read
 
 =head1 DESCRIPTION
 
@@ -203,6 +210,18 @@ sub header_magic  {
     my $self = shift;
     $self->{header_data} ||= $self->_get_dam_header;
     $self->{header_data}{magic};
+}
+
+=head2 $version = $dam->format_version
+
+Returns the version of the file format. Currently 1.01
+
+=cut
+
+sub format_version  {
+    my $self = shift;
+    $self->{header_data} ||= $self->_get_dam_header;
+    $self->{header_data}{format_version};
 }
 
 =head2 $bytes = $dam->header_offset
@@ -481,7 +500,8 @@ sub fetch_read {
     # there may be more than one matching read line, but they will be adjacent!
     my @matches;
     while (substr($lines->[$i],0,$len) eq $key) {
-	push @matches,$lines->[$i++];
+	my $line = _interpolate_stars($lines->[$i++]);
+	push @matches,$line;
     }
     
     return \@matches;
@@ -562,9 +582,7 @@ sub _rehydrate_stream {
 
 	if ($sam_done) {
 	    # sequence missing
-	    print $outfh join("\t",@dam_fields[0..8],
-			           '*','*',
-			           @dam_fields[11..$#dam_fields]),"\n";
+	    print $outfh join("\t",@dam_fields),"\n";
 	} 
 
 	elsif ($dam_fields[0] eq $sam_fields[0]) { #match
@@ -573,6 +591,14 @@ sub _rehydrate_stream {
 			           @dam_fields[11..$#dam_fields]),"\n";
 	}
     }
+}
+
+# This is not a method, but a subroutine call.
+# It adds stars to the SAM line for the sequence and quality scores
+sub _interpolate_stars {
+    my $line   = shift;
+    my @fields = split "\t",$line;
+    return join ("\t",@fields[0..8],'*','*',@fields[9..$#fields]);
 }
 
 sub _open_damfile {
@@ -595,9 +621,13 @@ sub _get_dam_header {
     my @data = unpack(HEADER_STRUCT,$buffer);
 
     my %fields;
-    @fields{'magic','header_offset','block_offset','index_offset','original_path'} = @data;
+    @fields{'magic','format_version','header_offset','block_offset','index_offset','original_path'} = @data;
 
-    $fields{magic} eq MAGIC or croak $self->damfile," doesn't have the right magic number";
+    $fields{magic}          eq MAGIC          or croak $self->damfile," doesn't have the right magic number";
+
+    $fields{format_version} /= 100;
+    $fields{format_version} == FORMAT_VERSION 
+	or croak $self->damfile," doesn't have the correct format version (got $fields{format_version} but expect ",FORMAT_VERSION,")";
     return \%fields;
 }
 

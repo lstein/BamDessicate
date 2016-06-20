@@ -75,7 +75,7 @@ sub next_read {
 	$lines   = $self->{lines} = $dam->_fetch_block($self->{block_index}) or return;
     }
 
-    my $next = $lines->[$self->{read_index}++];
+    my $next = Bio::DB::DamFile::_interpolate_stars($lines->[$self->{read_index}++]);
     if (defined $self->{ending_read}) {
 	my ($id) = $next =~ /^(\S+)\t/;
 	if ($id gt $self->{ending_read}) {
