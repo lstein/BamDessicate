@@ -200,6 +200,11 @@ sub block_cache_size {
     return $self->{options}{cache_size} ||= DEFAULT_BLOCK_CACHE_SIZE;
 }
 
+sub tmpdir {
+    my $self = shift;
+    return $self->{options}{tmpdir};
+}
+
 =head2 $magic = $dam->header_magic
 
 Returns the "magic number" that begins the header of the .dam file.
@@ -333,7 +338,8 @@ sub dessicate {
 
     eval 'require Bio::DB::DamFile::Creator' 
 	unless Bio::DB::DamFile::Creator->can('new');
-    Bio::DB::DamFile::Creator->new($damfile)->dessicate($infile);
+
+    Bio::DB::DamFile::Creator->new($damfile,eval{$self->tmpdir})->dessicate($infile);
     $obj->{damfile} = $damfile;
     return $obj;
 }
@@ -507,10 +513,24 @@ sub fetch_read {
     return \@matches;
 }
 
+sub _tmpdir_string {
+    my $self = shift;
+
+    my $tmpdir_string = '';
+    if (my $tmpdir = $self->tmpdir) {
+	$tmpdir_string = ref $tmpdir ? (join ' ',map{"-T $_"} @$tmpdir) : "-T $tmpdir";
+    }
+
+    return $tmpdir_string;
+}
+
 sub _rehydrate_bam {
     my $self = shift;
     my ($infile,$outfh) = @_;
-    open my $infh,"samtools view $infile | sort -k1,1 |" or die "Can't open samtools to read from $infile: $!";
+
+    my $tmpdir = $self->_tmpdir_string;
+    open my $infh,"samtools view $infile | sort $tmpdir -k1,1 |" 
+	or die "Can't open samtools to read from $infile: $!";
     warn "Sorting input BAM by read name. This may take a while...\n";
     $self->_rehydrate_stream($infh,$outfh);
 }
@@ -518,7 +538,8 @@ sub _rehydrate_bam {
 sub _rehydrate_sam {
     my $self = shift;
     my ($infile,$outfh) = @_;
-    open my $infh,"grep -v '\@' $infile | sort -k1,1 |" or die "Can't open $infile: $!";
+    my $tmpdir = $self->_tmpdir_string;
+    open my $infh,"grep -v '\@' $infile | sort $tmpdir -k1,1 |" or die "Can't open $infile: $!";
     warn "Sorting input SAM by read name. This may take a while...\n";
     $self->_rehydrate_stream($infh,$outfh);
 }
@@ -538,6 +559,8 @@ sub _rehydrate_fastq {
     else {  # in child process
 	my $fastq_fh;
 
+	my $tmpdir = $self->_tmpdir_string;
+
 	# open appropriate unzipper
 	if ($infile =~ /\.gz$/) {
 	    open $fastq_fh,"gunzip -c $infile |"  or die "gunzip   -c $infile: $!";
@@ -546,7 +569,7 @@ sub _rehydrate_fastq {
 	} else {
 	    open $fastq_fh,'<',$infile            or die "failed opening $infile for reading: $!";
 	}
-	open my $sort_fh,"| sort -k1,1"           or die "failed opening output pipe to sort: $!";
+	open my $sort_fh,"| sort $tmpdir -k1,1"   or die "failed opening output pipe to sort: $!";
 
 	local $/ = '@';
 	while (<$fastq_fh>) {

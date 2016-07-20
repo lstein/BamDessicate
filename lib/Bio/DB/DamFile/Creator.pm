@@ -8,7 +8,10 @@ use Cwd qw(abs_path);
 sub new {
     my $class   = shift;
     my $damfile = shift or die "Usage: Bio::DB::DamFile::Creator->new(\$output_dam_file)";
-    return bless {damfile=>$damfile},ref $class || $class;
+    my $tmpdirs = shift;
+    return bless {damfile=>$damfile,
+		  tmpdirs=>$tmpdirs
+    },ref $class || $class;
 }
 
 sub damfile { shift->{damfile} }
@@ -101,15 +104,26 @@ sub transcribe_sam_header {
     close $infh;
 }
 
+sub tmpdir_string {
+    my $self = shift;
+    my $tmpdirs = $self->{tmpdirs} or return '';
+    if (ref $tmpdirs) {
+	return join ' ',map {"-T $_"} @$tmpdirs;
+    } else {
+	return "-T $tmpdirs" 
+    }
+}
+
 sub open_sam_or_bam {
     my $self   = shift;
     my $infile = shift;
 
     my $infh;
+    my $tmpdir = $self->tmpdir_string;
     if ($infile =~ /\.bam$/) {
-	open $infh,"samtools view $infile | sort -k1,1 | "  or die "samtools view $infile: $!";
+	open $infh,"samtools view $infile | sort $tmpdir -k1,1 | "  or die "samtools view $infile: $!";
     } else {
-	open $infh,"sort -k1,1 $infile                 |"  or die "sort $infile: $!";
+	open $infh,"sort $tmpdir -k1,1 $infile                 |"  or die "sort $infile: $!";
     }
     return $infh;
 }
