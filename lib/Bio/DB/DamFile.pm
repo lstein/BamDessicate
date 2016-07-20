@@ -8,61 +8,61 @@ Bio::DB::DamFile -- Create and manage dessicated BAM sequence read files
 
 =head1 SYNOPSIS
 
-# Create a new DAM file from a BAM file.  "reads.bam" is the existing BAM
-# file.  "dessicated.dam" is the new dessicated file.  There is
-# typically an 8x reduction in size.
+ # Create a new DAM file from a BAM file.  "reads.bam" is the existing BAM
+ # file.  "dessicated.dam" is the new dessicated file.  There is
+ # typically an 8x reduction in size.
 
-$dam = Bio::DB::DamFile->new;
-$dam->dessicate('reads.bam','dessicated.dam');
+ $dam = Bio::DB::DamFile->new;
+ $dam->dessicate('reads.bam','dessicated.dam');
 
-# Open an existing DAM file:
-$dam = Bio::DB::DamFile->new('dessicated.dam');
+ # Open an existing DAM file:
+ $dam = Bio::DB::DamFile->new('dessicated.dam');
 
-# Restore a BAM file from a DAM file. The source of reads can be a
-# BAM, TAM or FASTQ file. The mapping information from the DAM file is
-# retained.
-# "reads.bam" is a source of read and quality information; can be
-#             BAM, TAM or FASTQ
-# "hydrated.bam" is the reconstituted BAM file
+ # Restore a BAM file from a DAM file. The source of reads can be a
+ # BAM, TAM or FASTQ file. The mapping information from the DAM file is
+ # retained.
+ # "reads.bam" is a source of read and quality information; can be
+ #             BAM, TAM or FASTQ
+ # "hydrated.bam" is the reconstituted BAM file
 
-$dam->rehydrate('reads.bam','hydrated.bam')
+ $dam->rehydrate('reads.bam','hydrated.bam')
 
-# Fetch SAM lines one at a time from the DAM file.
-# Reads will come out in alphabetic order by read_id.
+ # Fetch SAM lines one at a time from the DAM file.
+ # Reads will come out in alphabetic order by read_id.
 
-while ($sam_line = $dam->next_read) {
+ while ($sam_line = $dam->next_read) {
     print $sam_line,"\n";
-}
+ }
 
-# More sophisticated: use an iterator to seek into
-# the file at the location of a particular read.
-# Reads will come out in alphabetic order by read_id,
-# starting with the provided read id.
-$iterator = $dam->read_iterator('NA06984-SRR006041.1000244');
-while ($sam_line = $iterator->next_read) {
+ # More sophisticated: use an iterator to seek into
+ # the file at the location of a particular read.
+ # Reads will come out in alphabetic order by read_id,
+ # starting with the provided read id.
+ $iterator = $dam->read_iterator('NA06984-SRR006041.1000244');
+ while ($sam_line = $iterator->next_read) {
     print $sam_line,"\n";
-}
+ }
 
-# Return all SAM lines that match a particular id
-$sam_lines = $dam->fetch_read('NA06984-SRR006041.1000244');
-print join ("\n",@$sam_lines),"\n";
+ # Return all SAM lines that match a particular id
+ $sam_lines = $dam->fetch_read('NA06984-SRR006041.1000244');
+ print join ("\n",@$sam_lines),"\n";
 
-# Get the SAM header information
-$header    = $dam->sam_header;  # BUG - needs to be written
+ # Get the SAM header information
+ $header    = $dam->sam_header;  # BUG - needs to be written
 
-# Accessing information in the DAM header
-$magic     = $dam->header_magic;  # DAM magic number (DAM1)
-$path      = $dam->source_path;   # Path to the original BAM file that was used to create the DAM file
-$offset    = $dam->header_offset; # Offset (in bytes) to where the SAM header starts
-$offset    = $dam->block_offset;  # Offset (in bytes) to where the bzip2-compressed alignmenet data starts
-$offset    = $dam->index_offset;  # Offset (in bytes) to where the name-sorted index of reads begins
+ # Accessing information in the DAM header
+ $magic     = $dam->header_magic;  # DAM magic number (DAM1)
+ $path      = $dam->source_path;   # Path to the original BAM file that was used to create the DAM file
+ $offset    = $dam->header_offset; # Offset (in bytes) to where the SAM header starts
+ $offset    = $dam->block_offset;  # Offset (in bytes) to where the bzip2-compressed alignmenet data starts
+ $offset    = $dam->index_offset;  # Offset (in bytes) to where the name-sorted index of reads begins
 
-# COMMAND LINE TOOLS:
-$ dessicate.pl in.bam out.dam           # dessicates in.bam, stores it in out.dam
-$ hydrate.pl   in.dam in.bam   out.bam  # rehydrates in.dam from read data stored in in.bam and stores in out.ba
-$ hydrate.pl   in.dam in.fastq out.bam  # same idea, but takes read data from in.fastq (works on fastq.gz too)
-$ dam_view.pl  in.dam                   # extracts SAM lines from in.dam and displays to stdout
-$ dam_view.pl  in.dam read0010 read0020 # displays SAM lines from start read to end read
+ # COMMAND LINE TOOLS:
+ $ dessicate.pl in.bam out.dam           # dessicates in.bam, stores it in out.dam
+ $ hydrate.pl   in.dam in.bam   out.bam  # rehydrates in.dam from read data stored in in.bam and stores in ou t.ba
+ $ hydrate.pl   in.dam in.fastq out.bam  # same idea, but takes read data from in.fastq (works on fastq.gz too)
+ $ dam_view.pl  in.dam                   # extracts SAM lines from in.dam and displays to stdout
+ $ dam_view.pl  in.dam read0010 read0020 # displays SAM lines from start read to end read
 
 =head1 DESCRIPTION
 
